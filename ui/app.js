@@ -1,6 +1,10 @@
 // 从配置文件中获取API基础URL
 const API_BASE_URL = UI_CONFIG.API_BASE_URL;
 
+// 调试信息：打印API_BASE_URL的实际值
+console.log('调试信息 - API_BASE_URL:', API_BASE_URL);
+console.log('调试信息 - UI_CONFIG:', UI_CONFIG);
+
 // 当前选中的图片ID
 let currentImageId = null;
 
@@ -318,7 +322,12 @@ async function loadImages() {
         };
         
         // 发送请求 - 使用v1版本
-        const response = await fetch(`${API_BASE_URL}/v1/check`, {
+        // 调试信息：打印最终的API URL
+        const apiUrl = `${API_BASE_URL}/v1/check`;
+        console.log('调试信息 - loadImages函数 - API URL:', apiUrl);
+        console.log('调试信息 - loadImages函数 - API_BASE_URL:', API_BASE_URL);
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
