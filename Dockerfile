@@ -5,9 +5,9 @@ FROM caddy:alpine
 LABEL maintainer="CRUD API UI"
 
 # 将UI文件复制到Caddy的默认静态文件目录
-COPY . /usr/share/caddy
+COPY ./ui /usr/share/caddy/ui
 
-# 复制Caddyfile配置
+# 复制Caddyfile配置文件
 COPY Caddyfile /etc/caddy/Caddyfile
 
 # 暴露80端口
