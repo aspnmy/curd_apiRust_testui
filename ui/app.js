@@ -5,6 +5,11 @@ const API_BASE_URL = UI_CONFIG.API_BASE_URL;
 let currentImageId = null;
 
 // 初始化页面
+// 页面加载完成后执行的初始化操作
+// 参数：
+//   无
+// 返回值：
+//   无
 window.addEventListener('DOMContentLoaded', function() {
     // 监听文件选择事件，显示预览
     const imageInput = document.getElementById('imageInput');
@@ -24,9 +29,6 @@ window.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // 加载图片列表
-     loadImages(); // 暂时注释，避免500错误
-    
     // 监听搜索框回车事件
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('keypress', function(e) {
@@ -34,9 +36,27 @@ window.addEventListener('DOMContentLoaded', function() {
             searchImages();
         }
     });
+
+    // 监听操作类型选择变化
+    const operationSelect = document.getElementById('testOperation');
+    if (operationSelect) {
+        operationSelect.addEventListener('change', function() {
+            const operation = this.value;
+            updateDynamicFields(operation);
+        });
+        
+        // 初始加载时显示对应操作的字段
+        updateDynamicFields(operationSelect.value);
+    }
 });
 
 // 显示消息
+// 显示一条带有指定类型的消息，3秒后自动消失
+// 参数：
+//   message - 要显示的消息内容
+//   type - 消息类型，可选值：info、success、error
+// 返回值：
+//   无
 function showMessage(message, type) {
     // 创建消息元素
     const messageDiv = document.createElement('div');
@@ -56,6 +76,11 @@ function showMessage(message, type) {
 }
 
 // 上传图片
+// 将选择的图片上传到服务器
+// 参数：
+//   无
+// 返回值：
+//   无
 async function uploadImage() {
     const imageInput = document.getElementById('imageInput');
     const file = imageInput.files[0];
@@ -151,6 +176,11 @@ async function uploadImage() {
 }
 
 // 获取用户出口IP地址
+// 通过调用外部服务获取用户的公网IP地址
+// 参数：
+//   无
+// 返回值：
+//   Promise<string> - 用户的公网IP地址
 async function getUserIpAddress() {
     // 使用AWS的IP检查服务，该服务返回纯文本格式的IP地址
     const ipServices = [
@@ -203,6 +233,11 @@ async function getUserIpAddress() {
 }
 
 // 计算文件SHA256哈希值
+// 使用Web Crypto API计算文件的SHA256哈希值
+// 参数：
+//   file - 要计算哈希值的文件对象
+// 返回值：
+//   Promise<string> - 文件的SHA256哈希值（十六进制字符串）
 async function computeFileSha256(file) {
     return new Promise((resolve, reject) => {
         try {
@@ -236,6 +271,11 @@ async function computeFileSha256(file) {
 }
 
 // 将文件转换为Base64
+// 将文件对象转换为Base64编码的字符串
+// 参数：
+//   file - 要转换的文件对象
+// 返回值：
+//   Promise<string> - Base64编码的文件内容
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -250,6 +290,11 @@ function fileToBase64(file) {
 }
 
 // 加载图片列表
+// 从服务器获取图片列表并显示
+// 参数：
+//   无
+// 返回值：
+//   无
 async function loadImages() {
     try {
         // 显示加载状态
@@ -300,6 +345,11 @@ async function loadImages() {
 }
 
 // 搜索图片
+// 根据搜索关键词从服务器获取匹配的图片列表
+// 参数：
+//   无
+// 返回值：
+//   无
 async function searchImages() {
     try {
         const searchInput = document.getElementById('searchInput');
@@ -372,6 +422,11 @@ async function searchImages() {
 }
 
 // 渲染图片列表
+// 将图片数据渲染为HTML列表
+// 参数：
+//   images - 图片数据数组
+// 返回值：
+//   无
 function renderImageList(images) {
     const imageList = document.getElementById('imageList');
     
@@ -421,6 +476,11 @@ function renderImageList(images) {
 }
 
 // 格式化文件大小
+// 将字节数格式化为可读的文件大小（如KB、MB等）
+// 参数：
+//   bytes - 文件大小（字节）
+// 返回值：
+//   string - 格式化后的文件大小
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     
@@ -432,6 +492,11 @@ function formatFileSize(bytes) {
 }
 
 // 显示图片详情
+// 根据ID从服务器获取图片详情并显示
+// 参数：
+//   id - 图片ID
+// 返回值：
+//   无
 async function showImageDetail(id) {
     try {
         // 验证id是否有效
@@ -491,6 +556,11 @@ async function showImageDetail(id) {
 }
 
 // 渲染图片详情
+// 将图片详情数据渲染为HTML
+// 参数：
+//   image - 图片详情数据
+// 返回值：
+//   无
 function renderImageDetail(image) {
     const imageDetail = document.getElementById('imageDetail');
     const isDeleted = image.is_del || false;
@@ -548,12 +618,22 @@ function renderImageDetail(image) {
 }
 
 // 隐藏图片详情
+// 隐藏图片详情区域
+// 参数：
+//   无
+// 返回值：
+//   无
 function hideImageDetail() {
     document.getElementById('detailSection').style.display = 'none';
     currentImageId = null;
 }
 
 // 编辑图片
+// 根据ID从服务器获取图片详情并显示编辑表单
+// 参数：
+//   id - 图片ID
+// 返回值：
+//   无
 async function editImage(id) {
     try {
         // 验证id是否有效
@@ -612,6 +692,11 @@ async function editImage(id) {
 }
 
 // 渲染编辑表单
+// 将图片详情数据渲染为编辑表单
+// 参数：
+//   image - 图片详情数据
+// 返回值：
+//   无
 function renderEditForm(image) {
     const editForm = document.getElementById('editForm');
     
@@ -647,6 +732,11 @@ function renderEditForm(image) {
 }
 
 // 保存图片修改
+// 将编辑后的图片数据保存到服务器
+// 参数：
+//   无
+// 返回值：
+//   无
 async function saveImageChanges() {
     if (!currentImageId) {
         showMessage('未选择要修改的图片', 'error');
@@ -742,12 +832,23 @@ async function saveImageChanges() {
 }
 
 // 取消编辑
+// 取消编辑操作，隐藏编辑表单
+// 参数：
+//   无
+// 返回值：
+//   无
 function cancelEdit() {
     document.getElementById('editSection').style.display = 'none';
     currentImageId = null;
 }
 
 // 删除图片
+// 标记删除或永久删除图片
+// 参数：
+//   id - 图片ID
+//   isDeleted - 是否已删除（true表示已删除，执行永久删除；false表示未删除，执行标记删除）
+// 返回值：
+//   无
 async function deleteImage(id, isDeleted) {
     const confirmMessage = isDeleted ? '确定要永久删除这张图片吗？此操作不可恢复！' : '确定要标记删除这张图片吗？';
     if (!confirm(confirmMessage)) {
@@ -813,6 +914,11 @@ async function deleteImage(id, isDeleted) {
 }
 
 // 格式化日期时间
+// 将ISO格式的日期时间字符串格式化为可读的日期时间
+// 参数：
+//   dateString - ISO格式的日期时间字符串
+// 返回值：
+//   string - 格式化后的日期时间
 function formatDateTime(dateString) {
     if (!dateString) return 'N/A';
     
@@ -830,6 +936,11 @@ function formatDateTime(dateString) {
 }
 
 // 测试数据写入（全局函数）
+// 测试向服务器写入数据
+// 参数：
+//   无
+// 返回值：
+//   无
 window.testAddData = async function() {
     try {
         // 获取输入值
@@ -939,23 +1050,14 @@ window.testAddData = async function() {
     }
 }
 
-// 测试基于file_type的API端点（全局函数）
-// 页面加载完成后，初始化事件监听器
-window.addEventListener('DOMContentLoaded', function() {
-    // 监听操作类型选择变化
-    const operationSelect = document.getElementById('testOperation');
-    if (operationSelect) {
-        operationSelect.addEventListener('change', function() {
-            const operation = this.value;
-            updateDynamicFields(operation);
-        });
-        
-        // 初始加载时显示对应操作的字段
-        updateDynamicFields(operationSelect.value);
-    }
-});
+
 
 // 更新动态表单字段和操作指南，根据选择的操作类型显示
+// 根据选择的操作类型显示对应的表单字段和操作指南
+// 参数：
+//   operation - 操作类型，可选值：add、check、update、isdel
+// 返回值：
+//   无
 function updateDynamicFields(operation) {
     // 隐藏所有动态字段
     document.getElementById('checkFields').style.display = 'none';
@@ -1004,6 +1106,11 @@ function updateDynamicFields(operation) {
 }
 
 // 显示check操作的结果，允许选择要更新的数据
+// 显示查询结果列表，允许用户选择要更新的数据
+// 参数：
+//   data - 查询结果数据数组
+// 返回值：
+//   无
 function displayCheckResults(data) {
     const checkResultsDiv = document.getElementById('checkResults');
     const checkResultsListDiv = document.getElementById('checkResultsList');
@@ -1041,6 +1148,12 @@ function displayCheckResults(data) {
 }
 
 // 选择要更新的数据
+// 选择查询结果中的一项进行更新
+// 参数：
+//   index - 数据在结果数组中的索引
+//   itemStr - 数据对象的JSON字符串
+// 返回值：
+//   无
 function selectItemForUpdate(index, itemStr) {
     try {
         const item = JSON.parse(itemStr);
@@ -1079,6 +1192,11 @@ function selectItemForUpdate(index, itemStr) {
 }
 
 // 查看数据详情
+// 显示数据的详细信息
+// 参数：
+//   itemStr - 数据对象的JSON字符串
+// 返回值：
+//   无
 function viewItemDetails(itemStr) {
     try {
         const item = JSON.parse(itemStr);
@@ -1104,6 +1222,12 @@ function viewItemDetails(itemStr) {
     }
 }
 
+// 测试基于file_type的API端点（全局函数）
+// 测试不同file_type的API端点
+// 参数：
+//   无
+// 返回值：
+//   无
 window.testFileTypeApi = async function() {
     try {
         // 获取输入值
@@ -1258,12 +1382,8 @@ window.testFileTypeApi = async function() {
         console.log('isdelField:', isdelField);
         console.log('isdelValue:', isdelValue);
         
-        // 检查API URL格式是否正确
-        if (!apiUrl.startsWith('http')) {
-            console.error('API URL格式错误，缺少协议:', apiUrl);
-            showMessage('API URL配置错误，缺少协议', 'error');
-            return;
-        }
+        // API URL使用相对路径，无需检查协议
+        console.log('使用相对路径API URL:', apiUrl);
         
         // 添加用户选择的额外参数
         if (operation === 'check') {
