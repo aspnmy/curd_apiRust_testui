@@ -1,5 +1,5 @@
 # Caddyfile配置文件
-# 为CRUD API UI提供静态文件服务
+# 为CRUD API UI提供静态文件服务和API代理
 
 # 监听80端口，提供HTTP服务
 :80 {
@@ -10,6 +10,10 @@
 	file_server browse {
 		index index.html
 	}
+
+	# 配置API代理，将/api路径的请求转发到后端服务
+	# 后端服务运行在10.168.3.165:7891
+	reverse_proxy /api/* http://10.168.3.165:7891
 
 	# 配置CORS，允许所有来源访问
 	header {

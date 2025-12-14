@@ -1,5 +1,5 @@
-// 从配置文件中获取API基础URL
-const API_BASE_URL = UI_CONFIG.API_BASE_URL;
+// 直接设置API基础URL为相对路径，确保始终使用当前域名和端口
+const API_BASE_URL = '/api';
 
 // 当前选中的图片ID
 let currentImageId = null;
