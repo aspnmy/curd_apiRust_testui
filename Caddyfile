@@ -3,46 +3,46 @@
 
 # 监听80端口，提供HTTP服务
 :80 {
-	# 设置根目录为静态文件目录
-	root * /usr/share/caddy/ui
+    # 设置根目录为静态文件目录
+    root * /usr/share/caddy/ui
 
-	# 设置默认文档
-	file_server browse {
-		index index.html
-	}
+    # 设置默认文档
+    file_server browse {
+        index index.html
+    }
 
-	# 配置API代理，将/api路径的请求转发到后端服务
-	# 后端服务运行在10.168.3.165:7981
-	reverse_proxy /api/* http://10.168.3.165:7981
+    # 配置API代理，将/api路径的请求转发到后端服务
+    # 后端服务运行在10.168.3.165:7981
+    reverse_proxy /api/* http://10.168.3.165:7981
 
-	# 配置CORS，允许所有来源访问
-	header {
-		Access-Control-Allow-Origin *
-		Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS
-		Access-Control-Allow-Headers *
-		Access-Control-Max-Age 86400
-	}
+    # 配置CORS，允许所有来源访问
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS
+        Access-Control-Allow-Headers *
+        Access-Control-Max-Age 86400
+    }
 
-	# 处理OPTIONS请求
-	@options method OPTIONS
-	respond @options 204
+    # 处理OPTIONS请求
+    @options method OPTIONS
+    respond @options 204
 
-	# 配置静态文件缓存
-	@static {
-		file
-		path *.js *.css *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2 *.ttf *.eot
-	}
-	header @static Cache-Control "public, immutable, max-age=31536000"
+    # 配置静态文件缓存
+    @static {
+        file
+        path *.js *.css *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2 *.ttf *.eot
+    }
+    header @static Cache-Control "public, immutable, max-age=31536000"
 
-	# 支持前端路由（SPA应用）
-	try_files {path} /index.html
+    # 支持前端路由（SPA应用）
+    try_files {path} /index.html
 
-	# 启用压缩
-	encode gzip zstd
+    # 启用压缩
+    encode gzip zstd
 
-	# 记录访问日志
-	log {
-		level info
-		format json
-	}
+    # 记录访问日志
+    log {
+        level info
+        format json
+    }
 }
