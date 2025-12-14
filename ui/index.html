@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD API测试UI</title>
+    <link rel="stylesheet" href="styles.css?v=1.0">
+    
+
+</head>
+<body>
+    <div class="container">
+        <h1>CRUD API测试UI</h1>
+        <p>本UI用于测试通用CRUD API，支持图片上传、增删改查功能</p>
+        
+        <!-- 图片上传区域 -->
+        <div class="section">
+            <h2>1. 上传图片</h2>
+            <div class="upload-area">
+                <label for="imageInput">选择图片:</label>
+                <input type="file" id="imageInput" accept="image/*" title="选择要上传的图片" aria-label="选择要上传的图片">
+                <button onclick="uploadImage()">上传图片</button>
+                <div id="imagePreview"></div>
+            </div>
+        </div>
+        
+        <!-- 图片列表区域 -->
+        <div class="section">
+            <h2>2. 图片列表</h2>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="搜索图片...">
+                <button onclick="searchImages()">搜索</button>
+                <button onclick="loadImages()">刷新列表</button>
+                <label><input type="checkbox" id="showAllCheckbox"> 显示所有数据（包括已删除）</label>
+            </div>
+            <div id="imageList"></div>
+        </div>
+        
+        <!-- 图片详情区域 -->
+        <div class="section" id="detailSection" style="display: none;">
+            <h2>3. 图片详情</h2>
+            <div id="imageDetail"></div>
+        </div>
+        
+        <!-- 修改图片区域 -->
+        <div class="section" id="editSection" style="display: none;">
+            <h2>4. 修改图片</h2>
+            <div id="editForm"></div>
+        </div>
+        
+        <!-- 测试数据写入 -->
+        <div class="section">
+            <h2>5. 测试数据写入</h2>
+            <div class="test-form">
+                <div class="form-group">
+                    <label for="testTableName">表名:</label>
+                    <input type="text" id="testTableName" placeholder="请输入表名">
+                </div>
+                
+                <div class="form-group">
+                    <label for="testDataJson">JSON数据:</label>
+                    <textarea id="testDataJson" placeholder="请输入JSON数据，如: {\"key\": \"value\"}"></textarea>
+                </div>
+                
+                <button onclick="testAddData()">测试写入</button>
+            </div>
+        </div>
+        
+        <!-- 基于file_type的API端点测试 -->
+        <div class="section">
+            <h2>6. 基于file_type的API端点测试</h2>
+            <div class="test-form">
+                <div class="form-group">
+                    <label for="testFileType">文件类型 (file_type):</label>
+                    <select id="testFileType">
+                        <option value="image">image</option>
+                        <option value="dicom">dicom</option>
+                        <option value="avi">avi</option>
+                        <option value="mp3">mp3</option>
+                        <option value="mp4">mp4</option>
+                        <option value="img2dicom">img2dicom</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="testOperation">操作类型:</label>
+                    <select id="testOperation">
+                        <option value="add">add (添加)</option>
+                        <option value="check">check (查询)</option>
+                        <option value="update">update (更新)</option>
+                        <option value="isdel">isdel (删除)</option>
+                    </select>
+                </div>
+                
+                <!-- 操作指导 -->
+                <div id="operationGuide" class="operation-guide">
+                    <p><strong>操作指导:</strong></p>
+                    <div id="guideList">
+                        <!-- add操作指南 -->
+                        <div class="guide-item" data-operation="add">
+                            <strong>add (添加):</strong> 选择文件并填写必要信息，点击测试按钮上传文件
+                            <div class="guide-example">
+                                <strong>示例:</strong>
+                                <p>1. 选择要上传的文件</p>
+                                <p>2. 选择对应的file_type（如image）</p>
+                                <p>3. 可选：在JSON数据中补充额外字段</p>
+                                <p>系统会自动生成file_id、file_sha256等必填字段</p>
+                            </div>
+                        </div>
+                        
+                        <!-- check操作指南 -->
+                        <div class="guide-item" data-operation="check">
+                            <strong>check (查询):</strong> 填写查询条件，点击测试按钮查询数据
+                            <div class="guide-example">
+                                <strong>JSON格式示例:</strong>
+                                <pre>{"file_name": "test_image.jpg"}</pre>
+                                <p>或更复杂的条件:</p>
+                                <pre>{"file_type": "image/jpeg", "file_size": {"$gt": 10000}}</pre>
+                                <p>说明：</p>
+                                <ul>
+                                    <li>留空JSON数据可查询所有数据</li>
+                                    <li>勾选"显示所有数据"可查询包括已删除的数据</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- update操作指南 -->
+                        <div class="guide-item" data-operation="update">
+                            <strong>update (更新):</strong> 填写要更新的数据和条件，点击测试按钮更新数据
+                            <div class="guide-example">
+                                <strong>JSON格式示例:</strong>
+                                <pre>{"id": 1, "file_name": "new_name.jpg", "file_description": "新描述"}</pre>
+                                <p>或使用明确的where_conditions:</p>
+                                <pre>{"where_conditions": [{"field": "id", "operator": "=", "value": 1}], "file_name": "new_name.jpg"}</pre>
+                                <p>说明：</p>
+                                <ul>
+                                    <li>如果提供id字段，将自动作为更新条件</li>
+                                    <li>使用where_conditions可指定更复杂的更新条件</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- isdel操作指南 -->
+                        <div class="guide-item" data-operation="isdel">
+                            <strong>isdel (删除):</strong> 填写删除条件，点击测试按钮删除数据
+                            <div class="guide-example">
+                                <strong>JSON格式示例:</strong>
+                                <pre>{"id": 1}</pre>
+                                <p>或使用明确的where_conditions:</p>
+                                <pre>{"where_conditions": [{"field": "file_name", "operator": "=", "value": "test.jpg"}]}</pre>
+                                <p>说明：</p>
+                                <ul>
+                                    <li>默认使用软删除（标记删除）</li>
+                                    <li>可自定义删除字段和值</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 动态表单字段，根据选择的操作类型显示 -->
+                <div id="dynamicFields" class="form-group">
+                    <!-- check操作的audit参数 -->
+                    <div id="checkFields" style="display: none;">
+                        <label><input type="checkbox" id="checkAudit"> 显示所有数据（包括已删除）</label>
+                    </div>
+                    
+                    <!-- update操作的提示 -->
+                    <div id="updateFields" style="display: none;">
+                        <div style="color: #666; font-size: 12px; margin-bottom: 10px;">
+                            <strong>提示:</strong> 在JSON数据中填写要更新的字段，系统会自动将data中的字段作为更新条件
+                        </div>
+                    </div>
+                    
+                    <!-- isdel操作的soft_delete_config参数 -->
+                    <div id="isdelFields" style="display: none;">
+                        <div style="color: #666; font-size: 12px; margin-bottom: 10px;">
+                            <strong>提示:</strong> 可选择自定义删除字段和值，或使用默认设置
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <label for="isdelField">删除字段:</label>
+                            <input type="text" id="isdelField" placeholder="默认: is_del" value="is_del">
+                            <label for="isdelValue">删除值:</label>
+                            <input type="text" id="isdelValue" placeholder="默认: true" value="true">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="testFileTypeFile">选择文件 (用于add操作):</label>
+                    <input type="file" id="testFileTypeFile" accept="*/*">
+                    <div style="margin-top: 5px; font-size: 12px; color: #666;">支持所有文件类型，会根据选择的file_type处理</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="testFileTypeTableName">表名 (可选):</label>
+                    <input type="text" id="testFileTypeTableName" placeholder="不填则使用默认表名">
+                </div>
+                
+                <div class="form-group">
+                    <label for="testFileTypeData">JSON数据 (可选，用于补充或覆盖自动生成的字段):</label>
+                    <textarea id="testFileTypeData" placeholder="请输入JSON数据，如: {\"file_description\": \"测试文件\"}"></textarea>
+                </div>
+                
+                <button onclick="testFileTypeApi()">测试API</button>
+                
+                <!-- 显示check操作的结果，允许选择要更新的数据 -->
+                <div id="checkResults" style="margin-top: 15px; display: none;">
+                    <h3>查询结果</h3>
+                    <div class="check-results-list" id="checkResultsList"></div>
+                </div>
+                
+                <div id="testFileTypeResult" style="margin-top: 10px; padding: 10px; background-color: #f0f0f0; border-radius: 5px; display: none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="config.js?v=1.0"></script>
+    <script src="app.js?v=1.0"></script>
+</body>
+</html>
