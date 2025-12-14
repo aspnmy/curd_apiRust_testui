@@ -5,5 +5,5 @@
 // 这样前端会自动使用当前页面的域名和端口访问API，避免硬编码地址导致的连接问题
 const UI_CONFIG = {
     // API基础URL - 使用相对路径，自动适配当前环境
-    API_BASE_URL: '/api'
+    API_BASE_URL: 'http://10.168.3.165:7981/api'
 };
